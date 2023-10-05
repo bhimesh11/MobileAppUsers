@@ -6,7 +6,10 @@ import jakarta.validation.constraints.Size;
 
 public class userRequestModel
 {
+public userRequestModel()
+{
 
+}
 @NotNull(message = "FirstName should not be null")
 @Size(min =2,message = "First name should be greater than 2 characters")
     private String firstName;

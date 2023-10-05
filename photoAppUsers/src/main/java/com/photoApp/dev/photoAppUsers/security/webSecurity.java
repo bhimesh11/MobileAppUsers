@@ -17,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -38,33 +39,37 @@ this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception
     {
+//
 //       http.csrf(AbstractHttpConfigurer::disable)
 //               .authorizeHttpRequests(req -> req.requestMatchers(new AntPathRequestMatcher("/users")).permitAll()
 //                       .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll())
 //               .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 //
-//       http.headers(AbstractHttpConfigurer::disable);
+//       http.headers(header->header.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         //configuring Authentication manger builder
 
       AuthenticationManagerBuilder managerBuilder =  http.getSharedObject(AuthenticationManagerBuilder.class);
-        System.out.println(managerBuilder.toString());
+
       managerBuilder.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
-        System.out.println(managerBuilder.toString());
+
         AuthenticationManager authManager = managerBuilder.build();
-        System.out.println(authManager.toString());
+
         AuthenticationFilter authFilter = new AuthenticationFilter(userService,environment,authManager);
-        System.out.println(authFilter.toString());
+
         authFilter.setFilterProcessesUrl(environment.getProperty("login.url.path"));
 
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests//(authorizarion -> authorizarion.requestMatchers(HttpMethod.POST,"/users").permitAll()
-                       (authorizarion -> authorizarion.requestMatchers(new AntPathRequestMatcher("/users","POST")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll())
+                .authorizeHttpRequests//(authorizarion -> authorizarion.requestMatchers(mvc.pattern(HttpMethod.POST,"/users")).permitAll()
+                      (authorizarion -> authorizarion.requestMatchers(new AntPathRequestMatcher("/users")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                              .requestMatchers(new AntPathRequestMatcher("/users/check/auth")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/users/check/status")).permitAll())
                 .authenticationManager(authManager)
+                .addFilter(authFilter)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.headers(header->header.frameOptions(frameOptions -> frameOptions.sameOrigin()));
-        return http.build();
+       return http.build();
     }
 }

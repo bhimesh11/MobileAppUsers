@@ -28,7 +28,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 
-public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter
+public class  AuthenticationFilter extends UsernamePasswordAuthenticationFilter
 {
 
 

@@ -5,7 +5,6 @@ import com.photoApp.dev.photoAppUsers.common.userDto;
 import com.photoApp.dev.photoAppUsers.model.createUserResponseModel;
 import com.photoApp.dev.photoAppUsers.model.userRequestModel;
 import com.photoApp.dev.photoAppUsers.service.userServices;
-import freemarker.core.Environment;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -15,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.core.env.Environment;
 
 @RestController
 @RequestMapping("/users")
@@ -22,18 +22,23 @@ public class userController
 {
 
 
+    @Autowired
     public userServices userServices;
 
-    public userController(com.photoApp.dev.photoAppUsers.service.userServices userServices) {
-        this.userServices = userServices;
-    }
+    @Autowired
+    public Environment environment;
 
-    @Value("${server.port}")
-    private int port;
-    @GetMapping("/status/check")
+
+    @GetMapping("/check/status")
     public String status()
     {
-        return "Working" + " " + port;
+        return "Working" + " " + environment.getProperty("local.server.port");
+    }
+
+    @GetMapping("/check/auth")
+    public String authCheck()
+    {
+        return "Token Verified";
     }
 
     @PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
