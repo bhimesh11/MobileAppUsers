@@ -1,0 +1,7 @@
+#gateway_ip_address
+gateway.ip=192.168.29.108
+#token
+token.expiration_time=3600000
+token.secret=dgjorufhrsnjdu438fkdj38fdmcv7dm3ckvhrsnjjuwelueivhe848fhedldh5pfk
+#login url
+login.url.path=/users/login
