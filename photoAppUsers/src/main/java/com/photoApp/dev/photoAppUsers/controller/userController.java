@@ -41,6 +41,12 @@ public class userController
         return "Token Verified";
     }
 
+    @GetMapping("/verify/token")
+    public String verifyTokenSecretKey()
+    {
+        return "Token value " + environment.getProperty("token.secret");
+    }
+
     @PostMapping(consumes = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE },
             produces = { MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<createUserResponseModel> createUser(@RequestBody @Valid  userRequestModel userReq)
