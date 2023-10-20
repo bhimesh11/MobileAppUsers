@@ -1,6 +1,8 @@
 package com.photoApp.dev.photoAppUsers;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
+import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.Bean;
@@ -18,5 +20,11 @@ public class PhotoAppUsersApplication {
 	public BCryptPasswordEncoder getbyBCryptPasswordEncoder()
 	{
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public HttpExchangeRepository httpTraceRepository()
+	{
+		return new InMemoryHttpExchangeRepository();
 	}
 }

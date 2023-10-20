@@ -60,12 +60,14 @@ this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         authFilter.setFilterProcessesUrl(environment.getProperty("login.url.path"));
 
         http.csrf(csrf -> csrf.disable())
+        //http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests//(authorizarion -> authorizarion.requestMatchers(mvc.pattern(HttpMethod.POST,"/users")).permitAll()
                       (authorizarion -> authorizarion.requestMatchers(new AntPathRequestMatcher("/users")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                               .requestMatchers(new AntPathRequestMatcher("/users/check/auth")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/users/check/status")).permitAll()
-                              .requestMatchers(new AntPathRequestMatcher("/users/verify/token")).permitAll())
+                              .requestMatchers(new AntPathRequestMatcher("/users/verify/token")).permitAll()
+                              .requestMatchers(new AntPathRequestMatcher("/users-rs/actuator/**")).permitAll().anyRequest().authenticated())
                 .authenticationManager(authManager)
                 .addFilter(authFilter)
                 .sessionManagement((session) -> session
