@@ -28,30 +28,21 @@ public class webSecurity {
     private userServices userService;
 
     private Environment environment;
-   private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public webSecurity(userServices userService, Environment environment, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userService = userService;
         this.environment = environment;
-this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity http) throws Exception
     {
-//
-//       http.csrf(AbstractHttpConfigurer::disable)
-//               .authorizeHttpRequests(req -> req.requestMatchers(new AntPathRequestMatcher("/users")).permitAll()
-//                       .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll())
-//               .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//
-//       http.headers(header->header.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
-        //configuring Authentication manger builder
+        AuthenticationManagerBuilder managerBuilder =  http.getSharedObject(AuthenticationManagerBuilder.class);
 
-      AuthenticationManagerBuilder managerBuilder =  http.getSharedObject(AuthenticationManagerBuilder.class);
-
-      managerBuilder.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
+        managerBuilder.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
 
         AuthenticationManager authManager = managerBuilder.build();
 
@@ -60,19 +51,24 @@ this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         authFilter.setFilterProcessesUrl(environment.getProperty("login.url.path"));
 
         http.csrf(csrf -> csrf.disable())
-        //http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests//(authorizarion -> authorizarion.requestMatchers(mvc.pattern(HttpMethod.POST,"/users")).permitAll()
-                      (authorizarion -> authorizarion.requestMatchers(new AntPathRequestMatcher("/users")).permitAll()
-                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
-                              .requestMatchers(new AntPathRequestMatcher("/users/check/auth")).permitAll()
+                .authorizeHttpRequests
+                (authorizarion ->
+                        authorizarion.requestMatchers(new AntPathRequestMatcher("/users")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/users/check/auth")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/users/check/status")).permitAll()
-                              .requestMatchers(new AntPathRequestMatcher("/users/verify/token")).permitAll()
-                              .requestMatchers(new AntPathRequestMatcher("/users-rs/actuator/**")).permitAll().anyRequest().authenticated())
+                        .requestMatchers(new AntPathRequestMatcher("/users/verify/token")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/users-rs/actuator/**")).permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
+//                                .requestMatchers(HttpMethod.GET, "/actuator/circuitbreakerevents").permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/users/**")).permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .authenticationManager(authManager)
                 .addFilter(authFilter)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.headers(header->header.frameOptions(frameOptions -> frameOptions.sameOrigin()));
-       return http.build();
+        return http.build();
     }
 }

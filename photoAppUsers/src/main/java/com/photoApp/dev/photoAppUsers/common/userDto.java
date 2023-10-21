@@ -1,6 +1,9 @@
 package com.photoApp.dev.photoAppUsers.common;
 
+import com.photoApp.dev.photoAppUsers.model.AlbumResponseModel;
+
 import java.io.Serializable;
+import java.util.List;
 
 public class userDto implements Serializable
 {
@@ -12,6 +15,8 @@ public class userDto implements Serializable
     private String password;
     private String userId;
     private String encryptedPassword;
+
+    private List<AlbumResponseModel> albums;
 
 
 
@@ -73,5 +78,13 @@ public class userDto implements Serializable
                 ", userId='" + userId + '\'' +
                 ", encryptedPassword='" + encryptedPassword + '\'' +
                 '}';
+    }
+
+    public List<AlbumResponseModel> getAlbums() {
+        return albums;
+    }
+
+    public void setAlbums(List<AlbumResponseModel> albums) {
+        this.albums = albums;
     }
 }
