@@ -37,8 +37,8 @@ public class UserServiceImpl implements userServices
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
-    //RestTemplate restTemplate;
-    AlbumsServiceClient albumsServiceClient;
+    RestTemplate restTemplate;
+    //AlbumsServiceClient albumsServiceClient;
 
     Logger logger = LoggerFactory.getLogger("UserServiceImpl.class");
 
@@ -97,16 +97,18 @@ public class UserServiceImpl implements userServices
 
         userDto userdto = new ModelMapper().map(user,userDto.class);
 
-//        String albumsURI = String.format(environment.getProperty("albums-url"),userId);
-//        ResponseEntity<List<AlbumResponseModel>> albumResponseModel = restTemplate.exchange(albumsURI, HttpMethod.GET, null, new ParameterizedTypeReference<List<AlbumResponseModel>>(){
-//        });
-//        List<AlbumResponseModel> albumList = albumResponseModel.getBody();
-
+        String albumsURI = String.format(environment.getProperty("albums-url"),userId);
+        ResponseEntity<List<AlbumResponseModel>> albumResponseModel = restTemplate.exchange(albumsURI, HttpMethod.GET, null, new ParameterizedTypeReference<List<AlbumResponseModel>>(){
+        });
         logger.debug("Before calling" + userdto);
-        List<AlbumResponseModel> albumlist = albumsServiceClient.getAlbums(userId);
-        logger.debug("After calling " + albumlist);
+        List<AlbumResponseModel> albumList = albumResponseModel.getBody();
+        logger.debug("After calling " + albumList);
 
-        userdto.setAlbums(albumlist);
+//        logger.debug("Before calling" + userdto);
+//        List<AlbumResponseModel> albumlist = albumsServiceClient.getAlbums(userId);
+//        logger.debug("After calling " + albumlist);
+
+        userdto.setAlbums(albumList);
         return userdto;
     }
 
