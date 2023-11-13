@@ -20,6 +20,7 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+@EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 @EnableWebSecurity
 public class webSecurity {
@@ -59,12 +60,13 @@ public class webSecurity {
                         .requestMatchers(new AntPathRequestMatcher("/users/check/status")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/users/verify/token")).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/users-rs/actuator/**")).permitAll()
+                                .requestMatchers(new AntPathRequestMatcher("/users-rs/users/**")).access(new WebExpressionAuthorizationManager("hasIpAddress('"+environment.getProperty("gateway.ip")+"')"))
 //                                .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
 //                                .requestMatchers(HttpMethod.GET, "/actuator/circuitbreakerevents").permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/users/**")).permitAll()
                         .anyRequest()
                         .authenticated())
                 .authenticationManager(authManager)
+                .addFilter(new AuthorizationFilter(authManager,environment))
                 .addFilter(authFilter)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));

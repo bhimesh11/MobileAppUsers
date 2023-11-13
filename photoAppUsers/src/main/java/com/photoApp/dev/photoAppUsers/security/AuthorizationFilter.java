@@ -1,5 +1,6 @@
 package com.photoApp.dev.photoAppUsers.security;
 
+import io.jsonwebtoken.*;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,12 +12,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
 
 public class AuthorizationFilter extends BasicAuthenticationFilter
 {
-
-
     private  Environment environment;
 
     public AuthorizationFilter(AuthenticationManager authenticationManager,
@@ -36,34 +39,42 @@ public class AuthorizationFilter extends BasicAuthenticationFilter
             chain.doFilter(req,res);
             return;
         }
-     //   UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(req);
+        UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(req);
 
-     //   SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+       SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         chain.doFilter(req,res);
     }
-//    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest req)
-//    {
-//        String authorizationHeader = req.getHeader(environment.getProperty("authorization.token.header.name"));
-//
-//        if (authorizationHeader == null) {
-//            return null;
-//        }
-//        String token = authorizationHeader.replace(environment.getProperty("authorization.token.header.prefix"), "");
-//        String tokenSecret = environment.getProperty("token.secret");
-//
-//        if(tokenSecret==null)
-//            return null;
-//
-//     Jwt
-//
-//        if (userId == null) {
-//            return null;
-//        }
-//
-//        return new UsernamePasswordAuthenticationToken(userId, null, jwtClaimsParser.getUserAuthorities());
-//
-//    }
+    private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest req)
+    {
+        String authorizationHeader = req.getHeader(environment.getProperty("authorization.token.header.name"));
+
+        if (authorizationHeader == null) {
+            return null;
+        }
+        String token = authorizationHeader.replace(environment.getProperty("authorization.token.header.prefix"), "");
+        String tokenSecret = environment.getProperty("token.secret");
+
+        if(tokenSecret==null)
+            return null;
+byte[] secretBytes = Base64.getEncoder().encode(tokenSecret.getBytes());
+        SecretKey secretKey = new SecretKeySpec(secretBytes, SignatureAlgorithm.HS512.getJcaName());
+
+        JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(secretKey).build();
+
+        Jwt<Header, Claims> jwt = jwtParser.parse(token);
+
+        String userId = jwt.getBody().getSubject();
+
+        if(userId == null)
+        {
+            return null;
+        }
+
+        return new UsernamePasswordAuthenticationToken(userId,null,new ArrayList<>());
+
+
+    }
 
 
 }

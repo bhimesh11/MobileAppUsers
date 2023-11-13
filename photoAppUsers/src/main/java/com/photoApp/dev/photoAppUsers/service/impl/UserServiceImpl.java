@@ -2,6 +2,8 @@ package com.photoApp.dev.photoAppUsers.service.impl;
 
 import com.photoApp.dev.photoAppUsers.common.userDto;
 import com.photoApp.dev.photoAppUsers.database.UserEntity;
+import com.photoApp.dev.photoAppUsers.database.authorityEntity;
+import com.photoApp.dev.photoAppUsers.database.roleEntity;
 import com.photoApp.dev.photoAppUsers.model.AlbumResponseModel;
 import com.photoApp.dev.photoAppUsers.repository.AlbumsServiceClient;
 import com.photoApp.dev.photoAppUsers.service.userServices;
@@ -16,6 +18,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -123,8 +128,27 @@ public class UserServiceImpl implements userServices
         if(user==null) {
             throw new UsernameNotFoundException(username);
         }
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        Collection<roleEntity> roles = user.getRoles();
+
+        roles.forEach((role) -> {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+
+            Collection<authorityEntity> authorityEntities = role.getAuthorities();
+            authorityEntities.forEach((authorityEntity) -> {
+                authorities.add(new SimpleGrantedAuthority(authorityEntity.getName()));
+            });
+        });
+
+
         System.out.println(user.toString());
-            return new User(user.getEmail(),user.getEncryptedPassword(),true,true,true,true,new ArrayList<>());
+
+            return new User(user.getEmail(),user.getEncryptedPassword(),
+                    true,
+                    true,
+                    true,
+                    true,
+                    authorities);
 
        // throw  new UsernameNotFoundException(username);
     }

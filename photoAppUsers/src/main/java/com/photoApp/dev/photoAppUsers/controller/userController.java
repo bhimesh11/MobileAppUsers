@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.core.env.Environment;
 
@@ -29,8 +30,6 @@ Logger logger = LoggerFactory.getLogger(userController.class);
 
     @Autowired
     public Environment environment;
-
-    @Autowired
 
 
 
@@ -73,6 +72,7 @@ Logger logger = LoggerFactory.getLogger(userController.class);
             produces =
                     {MediaType.APPLICATION_JSON_VALUE,
     MediaType.APPLICATION_XML_VALUE})
+    @PreAuthorize("principal == #userId")
     public ResponseEntity<UserResponseModel> getUser(@PathVariable String userId)
     {
         userDto userdto = userServices.getUserByUserId(userId);

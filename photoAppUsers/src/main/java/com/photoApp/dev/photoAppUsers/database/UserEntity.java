@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 @Entity
 @Table(name = "users")
@@ -26,6 +27,21 @@ public class UserEntity implements Serializable {
     private String userId;
     @Column(nullable = false,unique = true)
     private String encryptedPassword;
+
+    @ManyToMany(cascade = CascadeType.PERSIST,
+            fetch = FetchType.EAGER)
+            @JoinTable(name = "users-roles",
+                    joinColumns = @JoinColumn(name="user-id", referencedColumnName = "Id"),
+                    inverseJoinColumns = @JoinColumn(name = "roles_id",referencedColumnName = "Id"))
+    Collection<roleEntity> roles;
+
+    public void setRoles(Collection<roleEntity> roles) {
+        this.roles = roles;
+    }
+
+    public Collection<roleEntity> getRoles() {
+        return roles;
+    }
 
     public long getId() {
         return Id;
